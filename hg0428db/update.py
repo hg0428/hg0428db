@@ -1,6 +1,8 @@
 import os
 import base64
 import requests
+
+
 def downloadFiles(files):
   for f in files:
         req = requests.get(f[1])
