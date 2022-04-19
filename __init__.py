@@ -20,9 +20,12 @@ class DataBase:
             'TEMPORARY-ACCESS-KEY': str(self.temp)
         })
         try:
-            data = requests.post('https://DB-API.hg0428.repl.co/' + endpoint,
-                                 headers=headers,
-                                 json=json)
+            data = requests.post(
+                f'https://DB-API.hg0428.repl.co/{endpoint}',
+                headers=headers,
+                json=json,
+            )
+
             return data.json()
         except:
             raise HTTPError(f'{data.status_code}: {data.reason}')
@@ -81,14 +84,16 @@ class DataBase:
                     f"{result['message']}: {result['error']}")
             elif result['message'].lower().startswith('error'):
                 raise DataError(f"{result['message']}: {result['error']}")
-        if result['message'].lower().startswith('undefined'):
-            if self.undefined_deletion == 'error':
-                try:
-                    raise UndefinedError(
-                        f"{key} is not defined. \nAdd undefined_deletion='ignore' argument to ignore these errors."
-                    )
-                finally:
-                    self.end()
+        if (
+            result['message'].lower().startswith('undefined')
+            and self.undefined_deletion == 'error'
+        ):
+            try:
+                raise UndefinedError(
+                    f"{key} is not defined. \nAdd undefined_deletion='ignore' argument to ignore these errors."
+                )
+            finally:
+                self.end()
         #del db[key]
 
     def __missing__(self, key):
