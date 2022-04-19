@@ -126,7 +126,6 @@ class DataBase:
             elif result['message'].lower().startswith('error'):
                 raise DataError(f"{result['message']}: {result['error']}")
         self.allKeys = result['keys']
-        print(self.allKeys)
         return key in self.allKeys
         #item in db
 
@@ -209,11 +208,9 @@ def update():
         #content = base64.decodestring(req['content'])
     else:
         return
-    print(files)
     for f in files:
         req = requests.get(f[1])
         req = req.json()
-        #print(re)
         content = base64.decodestring(req['content'].encode())
         open(os.path.dirname(__file__) + '/' + f[0],
              'w+').write(content.decode())
