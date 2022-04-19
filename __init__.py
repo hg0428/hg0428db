@@ -2,8 +2,13 @@ import requests
 import warnings
 from hg0428db.errors import *
 
+
 class DataBase:
-    def __init__(self, token, undefined: str = 'warn', undefined_return=None, undefined_deletion='error'):
+    def __init__(self,
+                 token,
+                 undefined: str = 'warn',
+                 undefined_return=None,
+                 undefined_deletion='error'):
         self.undefined_deletion = undefined_deletion
         self.undefined = undefined
         self.undefined_return = undefined_return
@@ -34,7 +39,7 @@ class DataBase:
             self.temp = data['temp']
         else:
             raise AuthenticationError(data['error'])
-          
+
     def __getitem__(self, key):
         result = self.request('get', {
             'key': key,
@@ -72,9 +77,7 @@ class DataBase:
         #db[key] = value
 
     def __delitem__(self, key):
-        result = self.request('delete', {
-            'key': key
-        })
+        result = self.request('delete', {'key': key})
         if result['error'] != 'null':
             if result['message'].lower().startswith('access denied'):
                 raise AuthenticationError(
@@ -93,6 +96,7 @@ class DataBase:
 
     def __missing__(self, key):
         pass  #db[key] in the case db doesn't have key
+
     def keys(self):
         result = self.request('list', {})
         if result['error'] != 'null':
@@ -101,8 +105,9 @@ class DataBase:
                     f"{result['message']}: {result['error']}")
             elif result['message'].lower().startswith('error'):
                 raise DataError(f"{result['message']}: {result['error']}")
-        self.keys=result['keys']
-        return self.keys
+        self.allKeys = result['keys']
+        return self.allKeys
+
     def __contains__(self, key):
         result = self.request('list', {})
         if result['error'] != 'null':
@@ -111,8 +116,9 @@ class DataBase:
                     f"{result['message']}: {result['error']}")
             elif result['message'].lower().startswith('error'):
                 raise DataError(f"{result['message']}: {result['error']}")
-        self.keys=result['keys']
-        return key in self.keys
+        self.allKeys = result['keys']
+        print(self.allKeys)
+        return key in self.allKeys
         #item in db
 
     def __len__(self):
@@ -123,8 +129,8 @@ class DataBase:
                     f"{result['message']}: {result['error']}")
             elif result['message'].lower().startswith('error'):
                 raise DataError(f"{result['message']}: {result['error']}")
-        self.keys=result['keys']
-        return len(self.keys)
+        self.allKeys = result['keys']
+        return len(self.allKeys)
         #len(db)
     def toDict(self):
         result = self.request('json', {})
@@ -138,7 +144,8 @@ class DataBase:
         return self.dict
         #db.toDict
     def __iter__(self):
-        pass  #for i in db:
+        for k in self.keys():
+          yield k, self[k]
 
     def __next__(self):
         pass  #db.next()
