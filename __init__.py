@@ -1,6 +1,7 @@
-#IMPORTANT
+import os
 import requests
 import warnings
+import base64
 from hg0428db.errors import *
 
 
@@ -29,6 +30,13 @@ class DataBase:
             data = requests.post('https://DB-API.hg0428.repl.co/' + endpoint,
                                  headers=headers,
                                  json=json)
+            if data.status_code == 502 or data.status_code == 404:
+                if data.status_code == 502: msg = '502: The API is offline'
+                else: msg = "error in the program 404"
+                warnings.warn(
+                    f'There was an error in the program. Report this to the developers: {msg}'
+                )
+                return
             return data.json()
         except:
             raise HTTPError(f'{data.status_code}: {data.reason}')
@@ -146,7 +154,7 @@ class DataBase:
         #db.toDict
     def __iter__(self):
         for k in self.keys():
-          yield k, self[k]
+            yield k, self[k]
 
     def __next__(self):
         pass  #db.next()
@@ -186,3 +194,26 @@ class DataBase:
     def end(self):
         self.request('end', headers={'TERMPORARY-ACCESS-KEY': str(self.temp)})
         # was __del__ but there is a bug with requests and __del__ so had to be removed.
+
+
+def update():
+    url = 'https://api.github.com/repos/hg0428/hg0428db/contents/'
+    files = []
+    req = requests.get(url)
+    if req.status_code == requests.codes.ok:
+        req = req.json()  # the response is a JSON
+        # req is now a dict with keys: name, encoding, url, size ...
+        # and content. But it is encoded with base64.
+        for i in req:
+            files.append([i['name'], i['url']])
+        #content = base64.decodestring(req['content'])
+    else:
+        return
+    print(files)
+    for f in files:
+        req = requests.get(f[1])
+        req = req.json()
+        #print(re)
+        content = base64.decodestring(req['content'].encode())
+        open(os.path.dirname(__file__) + '/' + f[0],
+             'w+').write(content.decode())
