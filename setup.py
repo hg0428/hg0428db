@@ -2,7 +2,7 @@ from distutils.core import setup
 setup(
   name = 'hg0428db',         # How you named your package folder (MyLib)
   packages = ['hg0428db'],   # Chose the same as "name"
-  version = '0.0.1',      # Start with a small number and increase it with every change you make
+  version = '0.0.2',      # Start with a small number and increase it with every change you make
   license='MIT',        # Chose a license from here: https://help.github.com/articles/licensing-a-repository
   description = 'A simple remote database system designed for replit terminal games.',   # Give a short description about your library
   author = 'Hudson Gouge',                   # Type in your name
